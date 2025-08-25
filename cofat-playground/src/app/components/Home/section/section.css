@@ -1,0 +1,38 @@
+.section-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #81a9d8;
+    height: 400px;
+    width: 100%;
+    padding: 20px;
+}
+
+.section-text {
+    width: 50%;
+}
+.section-text h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+.section-text p {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+}
+
+.section-text p:hover{
+    color: #004499;
+    cursor: pointer;
+    
+}
+.section-container img {
+    height: 300px;
+    width: 300px;
+    border-radius: 10px;
+}
+img:hover{
+    cursor: pointer;
+    border: solid 2px black;
+    
+}
