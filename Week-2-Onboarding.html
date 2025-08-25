@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COFAT – Intern Week 2: Angular Component Development</title>
+    <style>
+      :root {
+        --cofat-blue: #0066cc;
+        --cofat-red: #dc3545;
+        --cofat-dark-blue: #004499;
+        --primary: #0066cc;
+        --primary-dark: #004499;
+        --secondary: #dc3545;
+        --warning: #ff9500;
+        --danger: #ff3547;
+        --success: #00c851;
+        --text: #2c3e50;
+        --text-light: #7f8c8d;
+        --bg: #ffffff;
+        --bg-light: #f8f9fa;
+        --bg-accent: #e3f2fd;
+        --border: #dee2e6;
+        --shadow: rgba(0, 0, 0, 0.1);
+        --code-bg: #1e1e1e;
+        --code-fg: #d4d4d4;
+        --angular-red: #dd0031;
+        --component-blue: #42a5f5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+          Arial, sans-serif;
+        color: var(--text);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+
+      .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: var(--bg);
+        min-height: 100vh;
+        box-shadow: 0 0 30px var(--shadow);
+      }
+
+      header {
+        background: linear-gradient(
+          135deg,
+          var(--cofat-blue) 0%,
+          var(--cofat-red) 100%
+        );
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="20,10 30,30 10,30" fill="rgba(255,255,255,0.1)"/><polygon points="80,70 90,90 70,90" fill="rgba(255,255,255,0.1)"/><polygon points="60,20 70,40 50,40" fill="rgba(255,255,255,0.1)"/></svg>');
+        pointer-events: none;
+      }
+
+      .header-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      h1 {
+        margin: 0 0 10px 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+
+      .week-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-top: 15px;
+        display: inline-block;
+      }
+
+      .progress-bar {
+        background: rgba(255, 255, 255, 0.2);
+        height: 8px;
+        border-radius: 4px;
+        margin: 20px 0 0 0;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        background: var(--secondary);
+        height: 100%;
+        width: 0%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      .container {
+        padding: 40px 30px;
+      }
+
+      .completion-stats {
+        background: linear-gradient(135deg, var(--bg-accent) 0%, white 100%);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 30px;
+        border: 2px solid var(--primary);
+      }
+
+      .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .stats-label {
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      .nav-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid var(--border);
+        overflow-x: auto;
+      }
+
+      .nav-tab {
+        background: var(--bg-light);
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .nav-tab.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .nav-tab:hover:not(.active) {
+        background: var(--bg-accent);
+        color: var(--primary);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .section-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 6px var(--shadow);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .section-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px var(--shadow);
+      }
+
+      .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0 0 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      }
+
+      .component-card {
+        background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+        border: 2px solid var(--component-blue);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .component-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--component-blue);
+      }
+
+      .component-card:hover {
+        border-color: var(--angular-red);
+        transform: scale(1.02);
+      }
+
+      .component-card h3 {
+        color: var(--component-blue);
+        margin-bottom: 10px;
+      }
+
+      .day-plan {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .day-card {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--primary-dark) 100%
+        );
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .day-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      .day-card:hover {
+        transform: scale(1.03);
+      }
+
+      .day-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--secondary);
+      }
+
+      .day-goal {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #fff;
+      }
+
+      .task-list {
+        list-style: none;
+        padding: 0;
+        margin: 15px 0;
+      }
+
+      .task-list li {
+        background: rgba(255, 255, 255, 0.1);
+        margin: 8px 0;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
+
+      .code-block {
+        background: var(--code-bg);
+        color: var(--code-fg);
+        padding: 20px;
+        border-radius: 8px;
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        position: relative;
+        margin: 15px 0;
+      }
+
+      .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .branding-palette {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      .color-card {
+        background: var(--bg-light);
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        border: 2px solid var(--border);
+      }
+
+      .color-preview {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px var(--shadow);
+      }
+
+      .color-primary {
+        background: #0066cc;
+      }
+      .color-red {
+        background: #dc3545;
+      }
+      .color-dark {
+        background: #004499;
+      }
+      .color-text {
+        background: #2c3e50;
+      }
+
+      .interactive-checklist {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      .checklist-item {
+        background: var(--bg-light);
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        position: relative;
+      }
+
+      .checklist-item.completed {
+        background: var(--bg-accent);
+        border-color: var(--success);
+      }
+
+      .checklist-item.completed::after {
+        content: "✅";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.2rem;
+      }
+
+      .checklist-item:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+      }
+
+      .checklist-item h4 {
+        margin: 0 0 10px 0;
+        color: var(--primary);
+      }
+
+      .help-box {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      .help-title {
+        font-weight: 700;
+        color: #856404;
+        margin-bottom: 10px;
+      }
+
+      .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .resource-card {
+        background: var(--bg-light);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .resource-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+      }
+
+      .resource-link {
+        display: inline-block;
+        background: var(--primary);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+      }
+
+      .resource-link:hover {
+        background: var(--primary-dark);
+      }
+
+      .command-reference {
+        background: var(--bg-light);
+        border-left: 4px solid var(--component-blue);
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 10px;
+      }
+
+      .status-angular {
+        background: var(--angular-red);
+        color: white;
+      }
+
+      .status-component {
+        background: var(--component-blue);
+        color: white;
+      }
+
+      .status-practical {
+        background: var(--secondary);
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px 15px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .nav-tabs {
+          flex-wrap: wrap;
+        }
+
+        .grid,
+        .day-plan,
+        .interactive-checklist,
+        .branding-palette,
+        .resource-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .day-number {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <header>
+        <div class="header-content">
+          <h1>⚡ COFAT Angular Component Workshop</h1>
+          <p class="subtitle">Week 2: Build Real Angular Components</p>
+          <div class="week-badge">Week 2 of 4 • Practical Development</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="container">
+        <div class="completion-stats">
+          <div class="stats-number" id="completionPercentage">0%</div>
+          <div class="stats-label">Daily Tasks Completed</div>
+        </div>
+
+        <nav class="nav-tabs">
+          <button class="nav-tab active" data-tab="overview">🎯 Mission</button>
+          <button class="nav-tab" data-tab="components">🧩 Components</button>
+          <button class="nav-tab" data-tab="timeline">📅 5-Day Plan</button>
+          <button class="nav-tab" data-tab="branding">🎨 COFAT Design</button>
+          <button class="nav-tab" data-tab="resources">📚 Resources</button>
+          <button class="nav-tab" data-tab="checklist">✅ Progress</button>
+        </nav>
+
+        <!-- Mission Overview Tab -->
+        <div class="tab-content active" id="overview">
+          <div class="section-card">
+            <h2 class="section-title">
+              🚀 Week 2 Mission: Build Your First Angular Components
+            </h2>
+            <p>
+              Welcome to the exciting world of Angular development! This week,
+              you'll transform from a setup expert into a component builder.
+              You'll create the core building blocks of a modern web
+              application.
+            </p>
+
+            <div class="grid">
+              <div class="component-card">
+                <h3>🧭 Navbar Component</h3>
+                <p>
+                  Professional navigation with logo, menu items, and mobile
+                  responsiveness
+                </p>
+                <div class="task-list">
+                  <li>📱 Responsive design</li>
+                  <li>🎨 COFAT branding</li>
+                  <li>🍔 Mobile hamburger menu</li>
+                </div>
+              </div>
+
+              <div class="component-card">
+                <h3>🎪 Hero Section</h3>
+                <p>
+                  Section d'accueil avec messaging COFAT pour l'industrie automobile
+                </p>
+                <div class="task-list">
+                  <li>🎨 COFAT blue/red gradient</li>
+                  <li>� Automotive industry focus</li>
+                  <li>🎯 French call-to-action</li>
+                </div>
+              </div>
+
+              <div class="component-card">
+                <h3>📄 Footer Component</h3>
+                <p>
+                  Complete page footer with company information and social links
+                </p>
+                <div class="task-list">
+                  <li>📋 Multi-column layout</li>
+                  <li>📞 Contact information</li>
+                  <li>🌐 Social media links</li>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h2 class="section-title">📋 Prerequisites Check</h2>
+            <div class="interactive-checklist">
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>✅ Week 1 Complete</h4>
+                <p>All Week 1 deliverables submitted</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>⚡ Angular CLI Ready</h4>
+                <p>Angular CLI installed and working</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📁 Repository Access</h4>
+                <p>GitHub repository cloned locally</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>💻 Editor Configured</h4>
+                <p>VS Code or preferred editor ready</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Components Tab -->
+        <div class="tab-content" id="components">
+          <div class="section-card">
+            <h2 class="section-title">
+              🧩 Component Architecture & Specifications
+            </h2>
+
+            <div class="help-box">
+              <div class="help-title">💡 Angular Component Basics</div>
+              <p>Each Angular component consists of four files:</p>
+              <ul>
+                <li>
+                  <strong>.component.ts</strong> - TypeScript logic and data
+                </li>
+                <li>
+                  <strong>.component.html</strong> - HTML template structure
+                </li>
+                <li>
+                  <strong>.component.scss</strong> - Styling and appearance
+                </li>
+                <li>
+                  <strong>.component.spec.ts</strong> - Unit tests
+                  (auto-generated)
+                </li>
+              </ul>
+            </div>
+
+            <h3>🧭 Navbar Component Structure</h3>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code
+                >// Generate navbar component ng generate component
+                components/navbar // navbar.component.ts structure export class
+                NavbarComponent { menuItems = [ { label: 'Home', route: '/' }, {
+                label: 'About', route: '/about' }, { label: 'Services', route:
+                '/services' }, { label: 'Contact', route: '/contact' } ];
+                isMobileMenuOpen = false; toggleMobileMenu() {
+                this.isMobileMenuOpen = !this.isMobileMenuOpen; } }</code
+              >
+            </div>
+
+            <h3>🎪 Hero Section Structure</h3>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code
+                >// Generate hero component ng generate component
+                components/hero // hero.component.ts structure export class
+                HeroComponent { companyName = 'COFAT'; headline = 'Leading the
+                Future of Technology'; subtitle = 'Innovative solutions for
+                modern business challenges'; ctaText = 'Learn More';
+                onCtaClick() { console.log('CTA clicked'); } }</code
+              >
+            </div>
+
+            <h3>📄 Footer Component Structure</h3>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code
+                >// Generate footer component ng generate component
+                components/footer // footer.component.ts structure export class
+                FooterComponent { companyInfo = { name: 'COFAT', address: 'Your
+                Company Address', phone: '+1 (555) 123-4567', email:
+                'info@cofat.com' }; socialLinks = [ { platform: 'LinkedIn', url:
+                '#' }, { platform: 'Twitter', url: '#' }, { platform:
+                'Facebook', url: '#' } ]; currentYear = new
+                Date().getFullYear(); }</code
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline Tab -->
+        <div class="tab-content" id="timeline">
+          <div class="section-card">
+            <h2 class="section-title">📅 Your 5-Day Development Journey</h2>
+
+            <div class="day-plan">
+              <div class="day-card">
+                <div class="day-number">Day 1</div>
+                <div class="day-goal">Project Setup & Navbar</div>
+                <ul class="task-list">
+                  <li>🔧 Create Angular project</li>
+                  <li>🧭 Generate navbar component</li>
+                  <li>🎨 Build responsive navigation</li>
+                  <li>📤 Commit navbar structure</li>
+                </ul>
+                <div
+                  class="help-box"
+                  style="margin-top: 15px; background: rgba(255, 255, 255, 0.1)"
+                >
+                  <strong>🎯 Goal:</strong> Working navigation bar with COFAT
+                  branding
+                </div>
+              </div>
+
+              <div class="day-card">
+                <div class="day-number">Day 2</div>
+                <div class="day-goal">Hero Section Creation</div>
+                <ul class="task-list">
+                  <li>🎭 Generate hero component</li>
+                  <li>🎨 Design hero content layout</li>
+                  <li>📱 Implement responsive design</li>
+                  <li>📤 Commit hero component</li>
+                </ul>
+                <div
+                  class="help-box"
+                  style="margin-top: 15px; background: rgba(255, 255, 255, 0.1)"
+                >
+                  <strong>🎯 Goal:</strong> Impressive homepage banner with
+                  call-to-action
+                </div>
+              </div>
+
+              <div class="day-card">
+                <div class="day-number">Day 3</div>
+                <div class="day-goal">Footer Development</div>
+                <ul class="task-list">
+                  <li>🦶 Generate footer component</li>
+                  <li>📋 Create multi-column layout</li>
+                  <li>🌐 Add social media links</li>
+                  <li>📤 Commit footer component</li>
+                </ul>
+                <div
+                  class="help-box"
+                  style="margin-top: 15px; background: rgba(255, 255, 255, 0.1)"
+                >
+                  <strong>🎯 Goal:</strong> Professional footer with company
+                  information
+                </div>
+              </div>
+
+              <div class="day-card">
+                <div class="day-number">Day 4</div>
+                <div class="day-goal">Component Integration</div>
+                <ul class="task-list">
+                  <li>🧩 Update app component</li>
+                  <li>🎨 Polish overall styling</li>
+                  <li>📱 Test responsive behavior</li>
+                  <li>📤 Commit integration</li>
+                </ul>
+                <div
+                  class="help-box"
+                  style="margin-top: 15px; background: rgba(255, 255, 255, 0.1)"
+                >
+                  <strong>🎯 Goal:</strong> Complete homepage with all
+                  components
+                </div>
+              </div>
+
+              <div class="day-card">
+                <div class="day-number">Day 5</div>
+                <div class="day-goal">Documentation & Polish</div>
+                <ul class="task-list">
+                  <li>📝 Update project README</li>
+                  <li>🔍 Code review and cleanup</li>
+                  <li>📸 Create component gallery</li>
+                  <li>📤 Final deliverables</li>
+                </ul>
+                <div
+                  class="help-box"
+                  style="margin-top: 15px; background: rgba(255, 255, 255, 0.1)"
+                >
+                  <strong>🎯 Goal:</strong> Production-ready deliverables
+                  package
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h2 class="section-title">📤 Week 2 Deliverables</h2>
+            <div class="interactive-checklist">
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🔗 GitHub Repository</h4>
+                <p>Updated cofat-intern-playground with Angular project</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🧩 Component Files</h4>
+                <p>All three components properly structured</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📸 Screenshot Gallery</h4>
+                <p>Component documentation with visuals</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📝 Learning Notes</h4>
+                <p>Week 2 progress and concepts learned</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branding Tab -->
+        <div class="tab-content" id="branding">
+          <div class="section-card">
+            <h2 class="section-title">🎨 COFAT Design System & Branding</h2>
+
+            <h3>🎨 Color Palette</h3>
+            <div class="branding-palette">
+              <div class="color-card">
+                <div class="color-preview color-primary"></div>
+                <strong>COFAT Blue</strong>
+                <div>#0066cc</div>
+                <small>Primary brand color</small>
+              </div>
+              <div class="color-card">
+                <div class="color-preview color-red"></div>
+                <strong>COFAT Red</strong>
+                <div>#dc3545</div>
+                <small>Secondary brand color</small>
+              </div>
+              <div class="color-card">
+                <div class="color-preview color-dark"></div>
+                <strong>Dark Blue</strong>
+                <div>#004499</div>
+                <small>Darker blue variant</small>
+              </div>
+              <div class="color-card">
+                <div class="color-preview color-text"></div>
+                <strong>Text Dark</strong>
+                <div>#2c3e50</div>
+                <small>Primary text color</small>
+              </div>
+            </div>
+
+            <h3>📐 SCSS Variables</h3>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>// COFAT Brand Colors (from logo)
+$cofat-blue: #0066cc;
+$cofat-red: #dc3545;
+$cofat-dark-blue: #004499;
+
+// Supporting Colors
+$text-dark: #2c3e50;
+$text-light: #7f8c8d;
+$background: #ffffff;
+$light-gray: #f8f9fa;
+
+// Typography
+$font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+$line-height: 1.6;
+
+// Spacing
+$spacing-xs: 8px;
+$spacing-sm: 16px;
+$spacing-md: 24px;
+$spacing-lg: 32px;</code>
+            </div>
+
+            <h3>📱 Responsive Design Guidelines</h3>
+            <div class="command-reference">
+              <h4>📐 Breakpoints</h4>
+              <ul>
+                <li><strong>Mobile:</strong> 320px - 768px</li>
+                <li><strong>Tablet:</strong> 768px - 1024px</li>
+                <li><strong>Desktop:</strong> 1024px+</li>
+              </ul>
+
+              <h4>🎨 Layout Principles</h4>
+              <ul>
+                <li>Mobile-first approach</li>
+                <li>Consistent 16px, 24px, 32px spacing</li>
+                <li>Modular, reusable components</li>
+                <li>Clean visual hierarchy</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resources Tab -->
+        <div class="tab-content" id="resources">
+          <div class="section-card">
+            <h2 class="section-title">📚 Essential Resources & Help</h2>
+
+            <h3>📖 Learning Resources</h3>
+            <div class="resource-grid">
+              <div class="resource-card">
+                <h4>📘 Angular Docs</h4>
+                <p>Official Angular documentation</p>
+                <a
+                  href="https://angular.io/docs"
+                  target="_blank"
+                  class="resource-link"
+                  >Visit Docs</a
+                >
+              </div>
+              <div class="resource-card">
+                <h4>🧩 Components Guide</h4>
+                <p>Component architecture overview</p>
+                <a
+                  href="https://angular.io/guide/component-overview"
+                  target="_blank"
+                  class="resource-link"
+                  >Learn More</a
+                >
+              </div>
+              <div class="resource-card">
+                <h4>📱 CSS Flexbox</h4>
+                <p>Responsive layout guide</p>
+                <a
+                  href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/"
+                  target="_blank"
+                  class="resource-link"
+                  >Study Guide</a
+                >
+              </div>
+              <div class="resource-card">
+                <h4>🎨 Responsive Design</h4>
+                <p>Mobile-first development</p>
+                <a
+                  href="https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design"
+                  target="_blank"
+                  class="resource-link"
+                  >Read Guide</a
+                >
+              </div>
+            </div>
+
+            <h3>⚡ Quick Command Reference</h3>
+            <div class="command-reference">
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  ># Create Angular project ng new cofat-homepage --routing
+                  --style=scss # Generate component ng generate component
+                  components/navbar # Serve application ng serve # Build for
+                  production ng build # Git workflow git add . git commit -m
+                  "feat: add navbar component" git push origin main</code
+                >
+              </div>
+            </div>
+
+            <div class="help-box">
+              <div class="help-title">🆘 When to Ask for Help</div>
+              <ul>
+                <li>🚫 Stuck for more than 30 minutes</li>
+                <li>🤔 Angular concepts unclear</li>
+                <li>💻 Build errors or configuration issues</li>
+                <li>🎨 Design decisions or branding questions</li>
+                <li>📋 Git workflow confusion</li>
+              </ul>
+            </div>
+
+            <div
+              class="help-box"
+              style="
+                background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+              "
+            >
+              <div class="help-title" style="color: #2e7d32">
+                💪 Success Tips
+              </div>
+              <ul>
+                <li>🔄 Commit after each component completion</li>
+                <li>🧪 Test in browser frequently</li>
+                <li>📱 Check mobile responsiveness regularly</li>
+                <li>📝 Keep notes of new concepts learned</li>
+                <li>🤔 Ask questions early, don't struggle alone</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Checklist Tab -->
+        <div class="tab-content" id="checklist">
+          <div class="section-card">
+            <h2 class="section-title">✅ Weekly Progress Tracker</h2>
+            <p>Track your daily progress and achievements!</p>
+
+            <div class="interactive-checklist" id="mainChecklist">
+              <!-- Day 1 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🔧 Angular Project Created</h4>
+                <p>cofat-homepage project set up successfully</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🧭 Navbar Component Generated</h4>
+                <p>Navbar component structure created</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📱 Responsive Navbar Built</h4>
+                <p>Navigation with mobile hamburger menu</p>
+              </div>
+
+              <!-- Day 2 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🎭 Hero Component Generated</h4>
+                <p>Hero section component created</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🎨 Hero Design Complete</h4>
+                <p>Hero section with COFAT branding</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📱 Hero Responsive Design</h4>
+                <p>Hero section works on all screen sizes</p>
+              </div>
+
+              <!-- Day 3 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🦶 Footer Component Generated</h4>
+                <p>Footer component structure created</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📋 Footer Content Added</h4>
+                <p>Company info and social links</p>
+              </div>
+
+              <!-- Day 4 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🧩 Components Integrated</h4>
+                <p>All components working together</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🎨 Final Styling Polish</h4>
+                <p>Consistent COFAT branding applied</p>
+              </div>
+
+              <!-- Day 5 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📝 README Updated</h4>
+                <p>Comprehensive project documentation</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📸 Screenshot Gallery</h4>
+                <p>Visual documentation of components</p>
+              </div>
+
+              <!-- Final Deliverables -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>💾 All Code Committed</h4>
+                <p>Clear Git history with good commit messages</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📧 Week 2 Submitted</h4>
+                <p>Deliverables package sent to mentor</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Tab Navigation
+      document.querySelectorAll(".nav-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document
+            .querySelectorAll(".nav-tab")
+            .forEach((t) => t.classList.remove("active"));
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((c) => c.classList.remove("active"));
+
+          tab.classList.add("active");
+          const tabId = tab.getAttribute("data-tab");
+          document.getElementById(tabId).classList.add("active");
+        });
+      });
+
+      // Copy code functionality
+      function copyCode(button) {
+        const codeBlock = button.nextElementSibling;
+        const text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.textContent = "Copy";
+          }, 2000);
+        });
+      }
+
+      // Toggle interactive checklist items
+      function toggleChecklistItem(item) {
+        item.classList.toggle("completed");
+        updateProgress();
+      }
+
+      // Update progress
+      function updateProgress() {
+        const allItems = document.querySelectorAll(
+          "#mainChecklist .checklist-item"
+        );
+        const completedItems = document.querySelectorAll(
+          "#mainChecklist .checklist-item.completed"
+        );
+
+        const percentage = Math.round(
+          (completedItems.length / allItems.length) * 100
+        );
+
+        document.getElementById("completionPercentage").textContent =
+          percentage + "%";
+        document.getElementById("progressFill").style.width = percentage + "%";
+
+        // Save progress to localStorage
+        const progress = Array.from(allItems).map((item) =>
+          item.classList.contains("completed")
+        );
+        localStorage.setItem("cofat-week2-progress", JSON.stringify(progress));
+      }
+
+      // Load saved progress
+      function loadProgress() {
+        const saved = localStorage.getItem("cofat-week2-progress");
+        if (saved) {
+          const progress = JSON.parse(saved);
+          const items = document.querySelectorAll(
+            "#mainChecklist .checklist-item"
+          );
+
+          progress.forEach((completed, index) => {
+            if (completed && items[index]) {
+              items[index].classList.add("completed");
+            }
+          });
+
+          updateProgress();
+        }
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        loadProgress();
+      });
+    </script>
+  </body>
+</html>
