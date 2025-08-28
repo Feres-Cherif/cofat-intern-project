@@ -1,4 +1,4 @@
-.login-container {
+.contact-container {
     height: 100vh;
     display: flex;
     align-items: center;
@@ -6,13 +6,13 @@
     background-color: #f5f5f5;
 }
 
-.login-box {
+.contact-box {
     background: white;
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
 }
 
 h2 {
@@ -27,7 +27,7 @@ h2 {
     margin-bottom: 30px;
 }
 
-input {
+input, textarea {
     width: 100%;
     padding: 10px 0;
     border: none;
@@ -35,6 +35,11 @@ input {
     outline: none;
     font-size: 16px;
     transition: border-color 0.3s ease;
+    resize: none;
+}
+
+textarea {
+    min-height: 100px;
 }
 
 label {
@@ -47,13 +52,16 @@ label {
 }
 
 input:focus ~ label,
-input:valid ~ label {
+input:valid ~ label,
+textarea:focus ~ label,
+textarea:valid ~ label {
     top: -20px;
     font-size: 14px;
     color: #004499;
 }
 
-input:focus {
+input:focus,
+textarea:focus {
     border-bottom-color: #004499;
 }
 
@@ -73,27 +81,8 @@ button:hover {
     background: #003377;
 }
 
-.extra-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-.extra-options a {
-    color: #004499;
-    text-decoration: none;
-    
-}
-
-.extra-options a:hover {
-    text-decoration: underline;
-}
-
-
 @media (max-width: 480px) {
-    .login-box {
+    .contact-box {
         margin: 20px;
         padding: 20px;
     }
