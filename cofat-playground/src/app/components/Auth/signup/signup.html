@@ -1,21 +1,28 @@
 <div class="login-container">
     <div class="login-box">
-        <h2>Login</h2>
+        <h2>SignUp</h2>
         <form>
             <div class="input-group">
+                <input type="text" required>
+                <label>full name</label>
+            </div>
+             <div class="input-group">
                 <input type="email" required>
-                <label>Email</label>
+                <label>email</label>
             </div>
             <div class="input-group">
                 <input type="password" required>
-                <label>Password</label>
+                <label>password</label>
             </div>
+            <div class="input-group">
+                <input type="password" required>
+                <label>confirm password</label>
+            </div>
+
             <button type="submit">Login</button>
             <div class="extra-options">
                 <a href="#">Forgot Password?</a>
             </div>
-            <br>
-            <a routerLink="/signup" href="/signup"><em>Don't have an account? Sign Up</em></a>
         </form>
     </div>
 </div>

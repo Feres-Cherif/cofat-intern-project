@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COFAT - Angular 20 Routing Beginner Guide</title>
+    <style>
+      :root {
+        --cofat-blue: #0066cc;
+        --cofat-red: #dc3545;
+        --cofat-dark-blue: #004499;
+        --primary: #0066cc;
+        --primary-dark: #004499;
+        --secondary: #dc3545;
+        --success: #00c851;
+        --warning: #ff9500;
+        --text: #2c3e50;
+        --text-light: #7f8c8d;
+        --bg: #ffffff;
+        --bg-light: #f8f9fa;
+        --bg-accent: #e3f2fd;
+        --border: #dee2e6;
+        --shadow: rgba(0, 0, 0, 0.1);
+        --code-bg: #1e1e1e;
+        --code-fg: #d4d4d4;
+        --routing-purple: #7b1fa2;
+        --structure-green: #388e3c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+          Arial, sans-serif;
+        color: var(--text);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+
+      .main-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: var(--bg);
+        min-height: 100vh;
+        box-shadow: 0 0 30px var(--shadow);
+      }
+
+      header {
+        background: linear-gradient(
+          135deg,
+          var(--cofat-blue) 0%,
+          var(--cofat-dark-blue) 50%,
+          var(--routing-purple) 100%
+        );
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="20,10 30,30 10,30" fill="rgba(255,255,255,0.1)"/><polygon points="80,70 90,90 70,90" fill="rgba(255,255,255,0.1)"/><polygon points="60,20 70,40 50,40" fill="rgba(255,255,255,0.1)"/></svg>');
+        pointer-events: none;
+      }
+
+      .header-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      h1 {
+        margin: 0 0 10px 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+
+      .version-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-top: 15px;
+        display: inline-block;
+      }
+
+      .container {
+        padding: 40px 30px;
+      }
+
+      .nav-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid var(--border);
+        overflow-x: auto;
+      }
+
+      .nav-tab {
+        background: var(--bg-light);
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        position: relative;
+      }
+
+      .nav-tab.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .nav-tab:hover:not(.active) {
+        background: var(--bg-accent);
+        color: var(--primary);
+      }
+
+      .nav-tab.structure { border-bottom: 3px solid var(--structure-green); }
+      .nav-tab.routing { border-bottom: 3px solid var(--routing-purple); }
+      .nav-tab.code { border-bottom: 3px solid var(--cofat-red); }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .section-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 6px var(--shadow);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .section-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px var(--shadow);
+      }
+
+      .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0 0 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .structure-diagram {
+        background: var(--bg-light);
+        border: 2px solid var(--structure-green);
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+      }
+
+      .structure-before,
+      .structure-after {
+        background: var(--bg);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        border-left: 4px solid var(--cofat-red);
+      }
+
+      .structure-after {
+        border-left-color: var(--structure-green);
+      }
+
+      .structure-title {
+        font-weight: 700;
+        color: var(--structure-green);
+        margin-bottom: 10px;
+      }
+
+      .code-block {
+        background: var(--code-bg);
+        color: var(--code-fg);
+        padding: 20px;
+        border-radius: 8px;
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        position: relative;
+        margin: 15px 0;
+      }
+
+      .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .file-header {
+        background: var(--primary);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 6px 6px 0 0;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+      }
+
+      .file-code {
+        margin-top: 0;
+        border-radius: 0 0 6px 6px;
+      }
+
+      .step-card {
+        background: linear-gradient(135deg, var(--bg-accent) 0%, white 100%);
+        border: 2px solid var(--primary);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+      }
+
+      .step-number {
+        background: var(--primary);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        margin-right: 10px;
+      }
+
+      .route-flow {
+        background: var(--bg-light);
+        border: 2px solid var(--routing-purple);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      .flow-step {
+        display: inline-block;
+        background: var(--routing-purple);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        margin: 5px;
+        font-weight: 600;
+      }
+
+      .flow-arrow {
+        color: var(--routing-purple);
+        font-size: 1.5rem;
+        margin: 0 10px;
+      }
+
+      .concept-box {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      .concept-title {
+        font-weight: 700;
+        color: #856404;
+        margin-bottom: 10px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .feature-card {
+        background: var(--bg-light);
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+      }
+
+      .feature-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .checklist {
+        background: var(--bg-light);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+      }
+
+      .checklist-item {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+        padding: 10px;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .checklist-item:hover {
+        background: var(--bg-accent);
+      }
+
+      .checklist-item.completed {
+        background: var(--bg-accent);
+        border-left: 4px solid var(--success);
+      }
+
+      .checklist-checkbox {
+        margin-right: 10px;
+        font-size: 1.2rem;
+      }
+
+      .warning-box {
+        background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
+        border: 1px solid var(--cofat-red);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      .warning-title {
+        font-weight: 700;
+        color: var(--cofat-red);
+        margin-bottom: 10px;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px 15px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .nav-tabs {
+          flex-direction: column;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .flow-step {
+          display: block;
+          margin: 10px 0;
+        }
+
+        .flow-arrow {
+          display: block;
+          transform: rotate(90deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <header>
+        <div class="header-content">
+          <h1>🧭 Angular Routing Beginner Guide</h1>
+          <p class="subtitle">Complete Implementation for COFAT Intern</p>
+          <div class="version-badge">Angular 20 | Step-by-Step Tutorial</div>
+        </div>
+      </header>
+
+      <div class="container">
+        <nav class="nav-tabs">
+          <button class="nav-tab structure active" data-tab="overview">📋 Project Structure</button>
+          <button class="nav-tab routing" data-tab="routing">🧭 Routing Setup</button>
+          <button class="nav-tab code" data-tab="implementation">💻 Code Implementation</button>
+          <button class="nav-tab" data-tab="concepts">🎓 Concepts</button>
+          <button class="nav-tab" data-tab="testing">🧪 Testing</button>
+          <button class="nav-tab" data-tab="troubleshooting">🚨 Troubleshooting</button>
+        </nav>
+
+        <!-- Project Structure Tab -->
+        <div class="tab-content active" id="overview">
+          <div class="section-card">
+            <h2 class="section-title">🎯 What We're Building</h2>
+            
+            <div class="structure-diagram">
+              <div class="structure-title">📍 Current Structure (What you have now):</div>
+              <div class="structure-before">
+                <strong>app.component.html:</strong><br>
+                ├── &lt;app-navbar&gt;&lt;/app-navbar&gt;<br>
+                ├── &lt;app-hero-section&gt;&lt;/app-hero-section&gt;<br>
+                └── &lt;app-footer&gt;&lt;/app-footer&gt;
+              </div>
+
+              <div class="structure-title">🎯 Target Structure (What we want to achieve):</div>
+              <div class="structure-after">
+                <strong>app.component.html:</strong><br>
+                └── &lt;router-outlet&gt;&lt;/router-outlet&gt;<br><br>
+
+                <strong>Routes:</strong><br>
+                ├── /home (HomeComponent)<br>
+                │&nbsp;&nbsp;&nbsp;├── &lt;app-navbar&gt;&lt;/app-navbar&gt;<br>
+                │&nbsp;&nbsp;&nbsp;├── &lt;router-outlet&gt;&lt;/router-outlet&gt; (shows hero/about/contact)<br>
+                │&nbsp;&nbsp;&nbsp;└── &lt;app-footer&gt;&lt;/app-footer&gt;<br>
+                ├── /login (LoginComponent - full screen)<br>
+                └── /signup (SignupComponent - full screen)
+              </div>
+            </div>
+
+            <h3>📂 Required Components</h3>
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <strong>Create Home Component:</strong>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code>ng generate component components/home</code>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <strong>Create Page Components:</strong>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code>ng generate component pages/about
+ng generate component pages/contact</code>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <strong>Final Project Structure:</strong>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code>src/app/
+├── components/
+│   ├── navbar/
+│   ├── hero-section/
+│   ├── footer/
+│   └── home/              ← New
+├── pages/
+│   ├── about/             ← New
+│   └── contact/           ← New
+├── auth/
+│   ├── login/
+│   └── signup/
+├── app-routing.module.ts
+├── app.component.html
+├── app.component.ts
+└── app.module.ts</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Routing Setup Tab -->
+        <div class="tab-content" id="routing">
+          <div class="section-card">
+            <h2 class="section-title">🧭 Routing Configuration</h2>
+            
+            <div class="route-flow">
+              <h4>🔗 Route Structure</h4>
+              <div style="margin: 20px 0;">
+                <span class="flow-step">/ (Home)</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Hero Section</span>
+                <br><br>
+                <span class="flow-step">/about</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">About Page</span>
+                <br><br>
+                <span class="flow-step">/contact</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Contact Page</span>
+                <br><br>
+                <span class="flow-step">/login</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Login (Full Screen)</span>
+                <br><br>
+                <span class="flow-step">/signup</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Signup (Full Screen)</span>
+              </div>
+            </div>
+
+            <h3>📝 Main Routing File</h3>
+            <div class="file-header">📁 app-routing.module.ts</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+// Import all components
+import { HomeComponent } from './components/home/home.component';
+import { HeroSectionComponent } from './components/hero-section/hero-section.component';
+import { AboutComponent } from './pages/about/about.component';
+import { ContactComponent } from './pages/contact/contact.component';
+import { LoginComponent } from './auth/login/login.component';
+import { SignupComponent } from './auth/signup/signup.component';
+
+const routes: Routes = [
+  // Main application routes
+  {
+    path: '',
+    component: HomeComponent,
+    children: [
+      { path: '', component: HeroSectionComponent },        // Default route (hero section)
+      { path: 'about', component: AboutComponent },         // /about route
+      { path: 'contact', component: ContactComponent }      // /contact route
+    ]
+  },
+  
+  // Authentication routes (full screen, no navbar/footer)
+  { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
+  
+  // Fallback route
+  { path: '**', redirectTo: '' }
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }</code>
+            </div>
+
+            <div class="concept-box">
+              <div class="concept-title">🧭 Understanding Children Routes</div>
+              <p><strong>Children routes</strong> are nested inside a parent component. In our case:</p>
+              <ul>
+                <li><strong>Parent:</strong> HomeComponent (contains navbar, router-outlet, footer)</li>
+                <li><strong>Children:</strong> HeroSectionComponent, AboutComponent, ContactComponent</li>
+                <li><strong>Result:</strong> Children display inside the parent's router-outlet</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Code Implementation Tab -->
+        <div class="tab-content" id="implementation">
+          <div class="section-card">
+            <h2 class="section-title">💻 Complete Code Implementation</h2>
+            
+            <h3>🏠 Main App Component</h3>
+            <div class="file-header">📁 app.component.html</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>&lt;!-- This is the main router outlet for the entire app --&gt;
+&lt;router-outlet&gt;&lt;/router-outlet&gt;</code>
+            </div>
+
+            <h3>🏠 Home Component (Layout Wrapper)</h3>
+            <div class="file-header">📁 components/home/home.component.html</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>&lt;!-- Navigation bar (always visible on home routes) --&gt;
+&lt;app-navbar&gt;&lt;/app-navbar&gt;
+
+&lt;!-- This router-outlet shows different pages (hero, about, contact) --&gt;
+&lt;router-outlet&gt;&lt;/router-outlet&gt;
+
+&lt;!-- Footer (always visible on home routes) --&gt;
+&lt;app-footer&gt;&lt;/app-footer&gt;</code>
+            </div>
+
+            <div class="file-header">📁 components/home/home.component.ts</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss']
+})
+export class HomeComponent {
+  // This component acts as a layout wrapper
+}</code>
+            </div>
+
+            <h3>🧭 Updated Navbar with Navigation</h3>
+            <div class="file-header">📁 components/navbar/navbar.component.html</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>&lt;nav class="navbar"&gt;
+  &lt;div class="navbar-brand"&gt;
+    &lt;img src="assets/cofat-logo.png" alt="COFAT" class="logo"&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="navbar-menu"&gt;
+    &lt;!-- Navigation links using routerLink --&gt;
+    &lt;a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"&gt;
+      Accueil
+    &lt;/a&gt;
+    &lt;a routerLink="/about" routerLinkActive="active"&gt;
+      À Propos
+    &lt;/a&gt;
+    &lt;a routerLink="/contact" routerLinkActive="active"&gt;
+      Contact
+    &lt;/a&gt;
+    
+    &lt;!-- Login button navigates to login route --&gt;
+    &lt;button (click)="navigateToLogin()" class="login-btn"&gt;
+      Connexion
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;</code>
+            </div>
+
+            <div class="file-header">📁 components/navbar/navbar.component.ts</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-navbar',
+  templateUrl: './navbar.component.html',
+  styleUrls: ['./navbar.component.scss']
+})
+export class NavbarComponent {
+
+  constructor(private router: Router) { }
+
+  navigateToLogin() {
+    this.router.navigate(['/login']);
+  }
+}</code>
+            </div>
+
+            <h3>🔐 Login Component (Full Screen)</h3>
+            <div class="file-header">📁 auth/login/login.component.html</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>&lt;div class="login-container"&gt;
+  &lt;div class="login-card"&gt;
+    &lt;h2&gt;Connexion COFAT&lt;/h2&gt;
+    
+    &lt;form [formGroup]="loginForm" (ngSubmit)="onSubmit()"&gt;
+      &lt;div class="form-group"&gt;
+        &lt;label for="email"&gt;Email&lt;/label&gt;
+        &lt;input type="email" id="email" formControlName="email" class="form-control"&gt;
+      &lt;/div&gt;
+      
+      &lt;div class="form-group"&gt;
+        &lt;label for="password"&gt;Mot de passe&lt;/label&gt;
+        &lt;input type="password" id="password" formControlName="password" class="form-control"&gt;
+      &lt;/div&gt;
+      
+      &lt;button type="submit" class="btn btn-primary"&gt;Se connecter&lt;/button&gt;
+    &lt;/form&gt;
+    
+    &lt;!-- Navigation to signup --&gt;
+    &lt;div class="auth-links"&gt;
+      &lt;p&gt;Pas de compte? 
+        &lt;a (click)="goToSignup()" class="signup-link"&gt;Créer un compte&lt;/a&gt;
+      &lt;/p&gt;
+      
+      &lt;!-- Back to home --&gt;
+      &lt;p&gt;
+        &lt;a (click)="goToHome()" class="home-link"&gt;← Retour à l'accueil&lt;/a&gt;
+      &lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code>
+            </div>
+
+            <div class="file-header">📁 auth/login/login.component.ts</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
+})
+export class LoginComponent implements OnInit {
+  loginForm: FormGroup;
+
+  constructor(
+    private fb: FormBuilder,
+    private router: Router
+  ) {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
+
+  ngOnInit(): void { }
+
+  onSubmit() {
+    if (this.loginForm.valid) {
+      console.log('Login data:', this.loginForm.value);
+      // Here you would call your authentication service
+    }
+  }
+
+  goToSignup() {
+    this.router.navigate(['/signup']);
+  }
+
+  goToHome() {
+    this.router.navigate(['/']);
+  }
+}</code>
+            </div>
+
+            <h3>📦 Module Configuration</h3>
+            <div class="file-header">📁 app.module.ts</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { ReactiveFormsModule } from '@angular/forms';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+
+// Layout components
+import { HomeComponent } from './components/home/home.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { HeroSectionComponent } from './components/hero-section/hero-section.component';
+import { FooterComponent } from './components/footer/footer.component';
+
+// Page components
+import { AboutComponent } from './pages/about/about.component';
+import { ContactComponent } from './pages/contact/contact.component';
+
+// Auth components
+import { LoginComponent } from './auth/login/login.component';
+import { SignupComponent } from './auth/signup/signup.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    NavbarComponent,
+    HeroSectionComponent,
+    FooterComponent,
+    AboutComponent,
+    ContactComponent,
+    LoginComponent,
+    SignupComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule  // Required for forms
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Concepts Tab -->
+        <div class="tab-content" id="concepts">
+          <div class="section-card">
+            <h2 class="section-title">🎓 Understanding Routing Concepts</h2>
+            
+            <div class="grid">
+              <div class="feature-card">
+                <div class="feature-icon">🔌</div>
+                <h3>Router Outlet</h3>
+                <p><code>&lt;router-outlet&gt;</code> is where Angular displays the component based on the current route. You can have multiple router outlets.</p>
+              </div>
+              
+              <div class="feature-card">
+                <div class="feature-icon">👶</div>
+                <h3>Children Routes</h3>
+                <p>Nested routes that display inside a parent component's router-outlet. Perfect for layouts with consistent navigation.</p>
+              </div>
+              
+              <div class="feature-card">
+                <div class="feature-icon">🧭</div>
+                <h3>Navigation Methods</h3>
+                <p><strong>Declarative:</strong> <code>routerLink="/about"</code><br>
+                <strong>Programmatic:</strong> <code>router.navigate(['/login'])</code></p>
+              </div>
+              
+              <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Route Matching</h3>
+                <p>Angular matches URLs to routes in order. Use <code>**</code> for fallback routes and <code>''</code> for default routes.</p>
+              </div>
+            </div>
+
+            <h3>🔄 Navigation Flow Explanation</h3>
+            <div class="concept-box">
+              <div class="concept-title">User Journey Through Routes:</div>
+              <ol>
+                <li><strong>Start:</strong> User visits <code>/</code> → HomeComponent loads with HeroSectionComponent inside</li>
+                <li><strong>Navigation:</strong> User clicks "About" → HomeComponent stays, AboutComponent loads in router-outlet</li>
+                <li><strong>Login:</strong> User clicks "Login" → Full screen LoginComponent (no navbar/footer)</li>
+                <li><strong>Signup:</strong> From login, user clicks "Create account" → Full screen SignupComponent</li>
+                <li><strong>Return:</strong> From auth pages, user can return to home layout</li>
+              </ol>
+            </div>
+
+            <h3>🧩 Component Hierarchy</h3>
+            <div class="structure-diagram">
+              <div class="structure-title">Component Nesting Structure:</div>
+              <div class="structure-after">
+                App Component<br>
+                └── Router Outlet<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;├── Home Component<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── Navbar Component<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── Router Outlet (nested)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── Hero Section Component<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── About Component<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── Contact Component<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── Footer Component<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;├── Login Component (full screen)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;└── Signup Component (full screen)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testing Tab -->
+        <div class="tab-content" id="testing">
+          <div class="section-card">
+            <h2 class="section-title">🧪 Testing Your Implementation</h2>
+            
+            <h3>🚀 Development Server</h3>
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <strong>Start the server:</strong>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code>ng serve</code>
+              </div>
+            </div>
+
+            <h3>🔗 Test These URLs</h3>
+            <div class="checklist">
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                <strong>http://localhost:4200/</strong> → Home with hero section
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                <strong>http://localhost:4200/about</strong> → Home with about page
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                <strong>http://localhost:4200/contact</strong> → Home with contact page
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                <strong>http://localhost:4200/login</strong> → Login page (full screen)
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                <strong>http://localhost:4200/signup</strong> → Signup page (full screen)
+              </div>
+            </div>
+
+            <h3>🖱️ Test Navigation</h3>
+            <div class="checklist">
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                Click navbar links → should change content inside home layout
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                Click login button → should go to full screen login
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                From login, click "Create account" → should go to signup
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                From signup, click "Se connecter" → should go back to login
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                From auth pages, click "Retour à l'accueil" → should go to home
+              </div>
+            </div>
+
+            <h3>🎨 CSS for Full Screen Auth</h3>
+            <div class="file-header">📁 auth/login/login.component.scss</div>
+            <div class="code-block file-code">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <code>.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+  padding: 20px;
+}
+
+.login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+
+  h2 {
+    color: #0066cc;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 700;
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 16px;
+
+    &:focus {
+      outline: none;
+      border-color: #0066cc;
+    }
+  }
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #004499;
+  }
+}
+
+.auth-links {
+  text-align: center;
+  margin-top: 20px;
+
+  a {
+    color: #0066cc;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .home-link {
+    color: #6c757d;
+    font-size: 14px;
+  }
+}</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Troubleshooting Tab -->
+        <div class="tab-content" id="troubleshooting">
+          <div class="section-card">
+            <h2 class="section-title">🚨 Common Issues and Solutions</h2>
+            
+            <div class="warning-box">
+              <div class="warning-title">⚠️ Issue 1: "Cannot match any routes"</div>
+              <p><strong>Solution:</strong> Check that all components are imported in <code>app.module.ts</code> and routes are correctly defined in <code>app-routing.module.ts</code>.</p>
+              
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code>// Make sure all components are declared in app.module.ts
+declarations: [
+  AppComponent,
+  HomeComponent,        // ← Make sure this is here
+  NavbarComponent,
+  // ... all other components
+]</code>
+              </div>
+            </div>
+
+            <div class="warning-box">
+              <div class="warning-title">⚠️ Issue 2: "Router outlet not found"</div>
+              <p><strong>Solution:</strong> Make sure <code>AppRoutingModule</code> is imported in <code>app.module.ts</code>.</p>
+              
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code>// In app.module.ts
+imports: [
+  BrowserModule,
+  AppRoutingModule,     // ← Make sure this is imported
+  ReactiveFormsModule
+]</code>
+              </div>
+            </div>
+
+            <div class="warning-box">
+              <div class="warning-title">⚠️ Issue 3: "Navigation not working"</div>
+              <p><strong>Solution:</strong> Check that <code>Router</code> is imported in component and injected in constructor.</p>
+              
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code>import { Router } from '@angular/router';
+
+constructor(private router: Router) { }
+
+navigateToLogin() {
+  this.router.navigate(['/login']);
+}</code>
+              </div>
+            </div>
+
+            <div class="warning-box">
+              <div class="warning-title">⚠️ Issue 4: "routerLink not working"</div>
+              <p><strong>Solution:</strong> Ensure <code>RouterModule</code> is imported (it comes with <code>AppRoutingModule</code>).</p>
+              
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code>// RouterModule is automatically included when you import AppRoutingModule
+// Make sure your HTML uses correct syntax:
+&lt;a routerLink="/about" routerLinkActive="active"&gt;About&lt;/a&gt;</code>
+              </div>
+            </div>
+
+            <h3>🔍 Debugging Steps</h3>
+            <div class="checklist">
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                Check browser console for errors
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                Verify all imports in app.module.ts
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                Check route configuration in app-routing.module.ts
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                Ensure components are generated and exist
+              </div>
+              <div class="checklist-item" onclick="toggleChecklist(this)">
+                <span class="checklist-checkbox">☐</span>
+                Test with ng serve and hard refresh browser
+              </div>
+            </div>
+
+            <h3>📝 Next Steps</h3>
+            <div class="concept-box">
+              <div class="concept-title">After implementing this routing structure:</div>
+              <ol>
+                <li><strong>Test all navigation paths</strong> - Make sure every route works</li>
+                <li><strong>Add loading states</strong> for route transitions</li>
+                <li><strong>Implement route guards</strong> for protected routes (Week 3)</li>
+                <li><strong>Add animations</strong> for smooth transitions</li>
+                <li><strong>Connect forms to backend API</strong> (Week 3)</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Tab Navigation
+      document.querySelectorAll(".nav-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".nav-tab").forEach((t) => t.classList.remove("active"));
+          document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
+
+          tab.classList.add("active");
+          const tabId = tab.getAttribute("data-tab");
+          document.getElementById(tabId).classList.add("active");
+        });
+      });
+
+      // Copy code functionality
+      function copyCode(button) {
+        const codeBlock = button.nextElementSibling;
+        const text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.textContent = "Copy";
+          }, 2000);
+        });
+      }
+
+      // Toggle checklist items
+      function toggleChecklist(item) {
+        item.classList.toggle("completed");
+        const checkbox = item.querySelector(".checklist-checkbox");
+        if (item.classList.contains("completed")) {
+          checkbox.textContent = "✅";
+        } else {
+          checkbox.textContent = "☐";
+        }
+        
+        // Save progress to localStorage
+        saveProgress();
+      }
+
+      // Save progress
+      function saveProgress() {
+        const completedItems = Array.from(document.querySelectorAll(".checklist-item.completed"));
+        const completedIndexes = completedItems.map(item => {
+          return Array.from(document.querySelectorAll(".checklist-item")).indexOf(item);
+        });
+        localStorage.setItem("routing-guide-progress", JSON.stringify(completedIndexes));
+      }
+
+      // Load progress
+      function loadProgress() {
+        const saved = localStorage.getItem("routing-guide-progress");
+        if (saved) {
+          const completedIndexes = JSON.parse(saved);
+          const allItems = document.querySelectorAll(".checklist-item");
+          completedIndexes.forEach(index => {
+            if (allItems[index]) {
+              allItems[index].classList.add("completed");
+              allItems[index].querySelector(".checklist-checkbox").textContent = "✅";
+            }
+          });
+        }
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        loadProgress();
+      });
+    </script>
+  </body>
+</html>
