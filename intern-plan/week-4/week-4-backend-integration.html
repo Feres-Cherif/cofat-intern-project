@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      COFAT – Intern Week 4: Backend Integration & HTTP Communication
+    </title>
+    <style>
+      :root {
+        --cofat-blue: #0066cc;
+        --cofat-red: #dc3545;
+        --cofat-dark-blue: #004499;
+        --primary: #0066cc;
+        --primary-dark: #004499;
+        --secondary: #dc3545;
+        --warning: #ff9500;
+        --danger: #ff3547;
+        --success: #00c851;
+        --text: #2c3e50;
+        --text-light: #7f8c8d;
+        --bg: #ffffff;
+        --bg-light: #f8f9fa;
+        --bg-accent: #e3f2fd;
+        --border: #dee2e6;
+        --shadow: rgba(0, 0, 0, 0.1);
+        --code-bg: #1e1e1e;
+        --code-fg: #d4d4d4;
+        --angular-red: #dd0031;
+        --backend-purple: #6f42c1;
+        --api-green: #20c997;
+        --http-orange: #fd7e14;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+          Arial, sans-serif;
+        color: var(--text);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+
+      .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: var(--bg);
+        min-height: 100vh;
+        box-shadow: 0 0 30px var(--shadow);
+      }
+
+      header {
+        background: linear-gradient(
+          135deg,
+          var(--backend-purple) 0%,
+          var(--primary-dark) 100%
+        );
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="20,10 30,30 10,30" fill="rgba(255,255,255,0.1)"/><polygon points="80,70 90,90 70,90" fill="rgba(255,255,255,0.1)"/><polygon points="60,20 70,40 50,40" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="60" r="3" fill="rgba(255,255,255,0.1)"/></svg>');
+        pointer-events: none;
+      }
+
+      .header-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      h1 {
+        margin: 0 0 10px 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+
+      .week-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-top: 15px;
+        display: inline-block;
+      }
+
+      .mission-statement {
+        background: linear-gradient(
+          135deg,
+          var(--secondary) 0%,
+          var(--danger) 100%
+        );
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      .progress-bar {
+        background: rgba(255, 255, 255, 0.2);
+        height: 8px;
+        border-radius: 4px;
+        margin: 20px 0 0 0;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        background: var(--secondary);
+        height: 100%;
+        width: 0%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      .container {
+        padding: 40px 30px;
+      }
+
+      .completion-stats {
+        background: linear-gradient(135deg, var(--bg-accent) 0%, white 100%);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 30px;
+        border: 2px solid var(--primary);
+      }
+
+      .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .stats-label {
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      .nav-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid var(--border);
+        overflow-x: auto;
+      }
+
+      .nav-tab {
+        background: var(--bg-light);
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .nav-tab.active {
+        background: var(--backend-purple);
+        color: white;
+      }
+
+      .nav-tab:hover:not(.active) {
+        background: var(--bg-accent);
+        color: var(--primary);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .section-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 6px var(--shadow);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .section-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px var(--shadow);
+      }
+
+      .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0 0 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      }
+
+      .concept-card {
+        background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+        border: 2px solid var(--api-green);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: left;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .concept-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--api-green);
+      }
+
+      .concept-card:hover {
+        border-color: var(--backend-purple);
+        transform: scale(1.02);
+      }
+
+      .concept-card h3 {
+        color: var(--backend-purple);
+        margin-bottom: 10px;
+      }
+
+      .day-plan {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .day-card {
+        background: linear-gradient(
+          135deg,
+          var(--backend-purple) 0%,
+          var(--primary-dark) 100%
+        );
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .day-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      .day-card:hover {
+        transform: scale(1.03);
+      }
+
+      .day-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--secondary);
+      }
+
+      .day-goal {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #fff;
+      }
+
+      .task-list {
+        list-style: none;
+        padding: 0;
+        margin: 15px 0;
+      }
+
+      .task-list li {
+        background: rgba(255, 255, 255, 0.1);
+        margin: 8px 0;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
+
+      .code-block {
+        background: var(--code-bg);
+        color: var(--code-fg);
+        padding: 20px;
+        border-radius: 8px;
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        position: relative;
+        margin: 15px 0;
+      }
+
+      .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .tech-stack-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      .tech-card {
+        background: var(--bg-light);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        border: 2px solid var(--border);
+        transition: all 0.3s ease;
+      }
+
+      .tech-card:hover {
+        border-color: var(--backend-purple);
+        transform: translateY(-2px);
+      }
+
+      .tech-card h4 {
+        color: var(--backend-purple);
+        margin-bottom: 10px;
+      }
+
+      .http-method-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: var(--bg);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px var(--shadow);
+      }
+
+      .http-method-table th {
+        background: var(--backend-purple);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      .http-method-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .http-method-table tr:hover {
+        background: var(--bg-light);
+      }
+
+      .method-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 8px;
+      }
+
+      .method-post {
+        background: var(--api-green);
+        color: white;
+      }
+
+      .method-get {
+        background: var(--primary);
+        color: white;
+      }
+
+      .method-put {
+        background: var(--warning);
+        color: white;
+      }
+
+      .method-delete {
+        background: var(--danger);
+        color: white;
+      }
+
+      .interactive-checklist {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      .checklist-item {
+        background: var(--bg-light);
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        position: relative;
+      }
+
+      .checklist-item.completed {
+        background: var(--bg-accent);
+        border-color: var(--success);
+      }
+
+      .checklist-item.completed::after {
+        content: "✅";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
+      .checklist-item:hover {
+        border-color: var(--backend-purple);
+        transform: translateY(-2px);
+      }
+
+      .checklist-item h4 {
+        margin-bottom: 10px;
+        color: var(--backend-purple);
+      }
+
+      .help-box {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      .help-title {
+        font-weight: 700;
+        color: #856404;
+        margin-bottom: 10px;
+      }
+
+      .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      .resource-card {
+        background: var(--bg-light);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+      }
+
+      .resource-card:hover {
+        border-color: var(--backend-purple);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px var(--shadow);
+      }
+
+      .resource-link {
+        display: inline-block;
+        background: var(--backend-purple);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+      }
+
+      .resource-link:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px var(--shadow);
+      }
+
+      .command-reference {
+        background: var(--bg-light);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 10px;
+      }
+
+      .status-new {
+        background: var(--api-green);
+        color: white;
+      }
+
+      .status-backend {
+        background: var(--backend-purple);
+        color: white;
+      }
+
+      .status-http {
+        background: var(--http-orange);
+        color: white;
+      }
+
+      .api-endpoint {
+        background: var(--code-bg);
+        color: var(--success);
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-family: monospace;
+        margin: 5px 0;
+        display: inline-block;
+      }
+
+      .success-criteria-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: var(--bg);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px var(--shadow);
+      }
+
+      .success-criteria-table th {
+        background: var(--success);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      .success-criteria-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .success-criteria-table tr:hover {
+        background: var(--bg-light);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px 15px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .nav-tabs {
+          flex-wrap: wrap;
+        }
+
+        .grid,
+        .day-plan,
+        .interactive-checklist,
+        .tech-stack-grid,
+        .resource-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .http-method-table,
+        .success-criteria-table {
+          font-size: 0.9rem;
+        }
+
+        .http-method-table th,
+        .http-method-table td,
+        .success-criteria-table th,
+        .success-criteria-table td {
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <header>
+        <div class="header-content">
+          <h1>🚀 COFAT Frontend Intern Bootcamp</h1>
+          <p class="subtitle">
+            Week 4: Backend Integration & HTTP Communication
+          </p>
+          <div class="week-badge">FINAL WEEK • September 9-15, 2025</div>
+          <div class="mission-statement">
+            🎯 <strong>Final Week Mission:</strong> Transform Static Forms into
+            Dynamic Backend-Connected Application
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="container">
+        <div class="completion-stats">
+          <div class="stats-number" id="completionPercentage">0%</div>
+          <div class="stats-label">Tasks Completed</div>
+        </div>
+
+        <nav class="nav-tabs">
+          <button class="nav-tab active" data-tab="overview">
+            🎯 Overview
+          </button>
+          <button class="nav-tab" data-tab="theory">
+            📚 Theory & Concepts
+          </button>
+          <button class="nav-tab" data-tab="dailyplan">📅 Daily Plan</button>
+          <button class="nav-tab" data-tab="implementation">
+            💻 Implementation
+          </button>
+          <button class="nav-tab" data-tab="testing">🧪 Testing & API</button>
+          <button class="nav-tab" data-tab="success">
+            📊 Success Criteria
+          </button>
+          <button class="nav-tab" data-tab="checklist">
+            ✅ Progress Tracker
+          </button>
+        </nav>
+
+        <!-- Overview Tab -->
+        <div class="tab-content active" id="overview">
+          <div class="section-card">
+            <h2 class="section-title">
+              🎯 Week 4 Mission: Full-Stack Authentication System
+            </h2>
+
+            <div class="grid">
+              <div class="concept-card">
+                <h3>🏁 Final Week Goals</h3>
+                <ul>
+                  <li>
+                    ✅ <strong>Create users</strong> via Signup → JSON database
+                  </li>
+                  <li>
+                    ✅ <strong>Authenticate users</strong> via Login → Verify
+                    against database
+                  </li>
+                  <li>
+                    ✅ <strong>Use HTTP methods</strong> → POST (signup) & GET
+                    (login)
+                  </li>
+                  <li>
+                    ✅ <strong>Handle responses</strong> → Success/error
+                    feedback
+                  </li>
+                  <li>
+                    ✅ <strong>Manage state</strong> → User session & navigation
+                  </li>
+                </ul>
+              </div>
+
+              <div class="concept-card">
+                <h3>📋 What You've Accomplished</h3>
+                <p><strong>Week 1:</strong> Environment setup, Git workflow</p>
+                <p>
+                  <strong>Week 2:</strong> Component development, COFAT branding
+                </p>
+                <p>
+                  <strong>Week 3:</strong> Reactive forms, routing, validation
+                </p>
+                <p>
+                  <strong>Week 4:</strong> Backend integration, HTTP
+                  communication
+                </p>
+              </div>
+            </div>
+
+            <h3>🛠️ New Technical Stack This Week</h3>
+            <div class="tech-stack-grid">
+              <div class="tech-card">
+                <h4>📡 JSON Server</h4>
+                <p>Mock REST API backend for development</p>
+                <span class="status-badge status-new">NEW</span>
+              </div>
+              <div class="tech-card">
+                <h4>🔗 Angular HTTP Client</h4>
+                <p>API communication module</p>
+                <span class="status-badge status-http">HTTP</span>
+              </div>
+              <div class="tech-card">
+                <h4>🏗️ Angular Services</h4>
+                <p>Business logic separation</p>
+                <span class="status-badge status-backend">SERVICE</span>
+              </div>
+              <div class="tech-card">
+                <h4>🔄 RxJS Observables</h4>
+                <p>Async data handling</p>
+                <span class="status-badge status-http">ASYNC</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theory & Concepts Tab -->
+        <div class="tab-content" id="theory">
+          <div class="section-card">
+            <h2 class="section-title">📚 Essential Theory & Concepts</h2>
+
+            <h3>🌐 API (Application Programming Interface) Fundamentals</h3>
+            <div class="help-box">
+              <div class="help-title">🍽️ Restaurant Analogy</div>
+              <p>
+                <strong>API is like a waiter:</strong> Takes your order
+                (request) → Tells kitchen (server) → Brings back food (response)
+              </p>
+            </div>
+
+            <div class="grid">
+              <div class="concept-card">
+                <h3>📡 Key API Concepts</h3>
+                <ul>
+                  <li><strong>Endpoint:</strong> Specific URL for requests</li>
+                  <li><strong>Request:</strong> What you send to server</li>
+                  <li><strong>Response:</strong> What server sends back</li>
+                  <li><strong>HTTP Methods:</strong> GET, POST, PUT, DELETE</li>
+                </ul>
+              </div>
+
+              <div class="concept-card">
+                <h3>🔄 CRUD Operations</h3>
+                <p><strong>CRUD = Create, Read, Update, Delete</strong></p>
+                <p>The four basic operations for data management</p>
+              </div>
+            </div>
+
+            <h3>📊 HTTP Methods & CRUD Mapping</h3>
+            <table class="http-method-table">
+              <thead>
+                <tr>
+                  <th>Operation</th>
+                  <th>HTTP Method</th>
+                  <th>Purpose</th>
+                  <th>Week 4 Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="method-badge method-post">Create</span></td>
+                  <td>POST</td>
+                  <td>Add new data</td>
+                  <td>Create new user account</td>
+                </tr>
+                <tr>
+                  <td><span class="method-badge method-get">Read</span></td>
+                  <td>GET</td>
+                  <td>Retrieve data</td>
+                  <td>Get user for login verification</td>
+                </tr>
+                <tr>
+                  <td><span class="method-badge method-put">Update</span></td>
+                  <td>PUT/PATCH</td>
+                  <td>Modify existing data</td>
+                  <td>Update user profile (bonus)</td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="method-badge method-delete">Delete</span>
+                  </td>
+                  <td>DELETE</td>
+                  <td>Remove data</td>
+                  <td>Delete user account (bonus)</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3>📡 HTTP Protocol Structure</h3>
+            <div class="grid">
+              <div class="concept-card">
+                <h3>📤 Request Structure</h3>
+                <div class="code-block">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    Copy
+                  </button>
+                  <code
+                    >Method: POST URL: http://localhost:3001/users Headers:
+                    Content-Type: application/json Body: { "fullname": "Ahmed
+                    Ali", "email": "ahmed@test.com", "password": "123456"
+                    }</code
+                  >
+                </div>
+              </div>
+
+              <div class="concept-card">
+                <h3>📥 Response Structure</h3>
+                <div class="code-block">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    Copy
+                  </button>
+                  <code
+                    >Status Code: 201 Created Headers: Content-Type:
+                    application/json Body: { "id": 2, "fullname": "Ahmed Ali",
+                    "email": "ahmed@test.com", "password": "123456" }</code
+                  >
+                </div>
+              </div>
+            </div>
+
+            <h3>🔒 Authentication Concepts</h3>
+            <div class="help-box">
+              <div class="help-title">🔐 Authentication vs Authorization</div>
+              <p>
+                <strong>Authentication:</strong> "Who are you?" (Login
+                verification)
+              </p>
+              <p>
+                <strong>Authorization:</strong> "What can you do?" (Permission
+                checking)
+              </p>
+            </div>
+
+            <h3>📚 Essential Learning Resources</h3>
+            <div class="resource-grid">
+              <div class="resource-card">
+                <h4>🎥 API Basics</h4>
+                <p>API Explained in 2 Minutes</p>
+                <a
+                  href="https://www.youtube.com/watch?v=s7wmiS2mSXY"
+                  target="_blank"
+                  class="resource-link"
+                  >Watch Video</a
+                >
+              </div>
+              <div class="resource-card">
+                <h4>🔄 HTTP Methods</h4>
+                <p>HTTP Methods in 100 Seconds</p>
+                <a
+                  href="https://www.youtube.com/watch?v=iYM2zFP3Zn0"
+                  target="_blank"
+                  class="resource-link"
+                  >Watch Video</a
+                >
+              </div>
+              <div class="resource-card">
+                <h4>🧪 Postman Tutorial</h4>
+                <p>API Testing for Beginners</p>
+                <a
+                  href="https://www.youtube.com/watch?v=VywxIQ2ZXw4"
+                  target="_blank"
+                  class="resource-link"
+                  >Watch Video</a
+                >
+              </div>
+              <div class="resource-card">
+                <h4>🔄 Async JavaScript</h4>
+                <p>Promises & Observables</p>
+                <a
+                  href="https://www.youtube.com/watch?v=PoRJizFvM7s"
+                  target="_blank"
+                  class="resource-link"
+                  >Watch Video</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Plan Tab -->
+        <div class="tab-content" id="dailyplan">
+          <div class="section-card">
+            <h2 class="section-title">📅 Week 4 Daily Implementation Plan</h2>
+
+            <div class="day-plan">
+              <div class="day-card">
+                <div class="day-number">1</div>
+                <div class="day-goal">JSON Server Setup & Database</div>
+                <p><strong>Goal:</strong> Create mock backend and user model</p>
+                <ul class="task-list">
+                  <li>📦 Install JSON Server globally</li>
+                  <li>🗃️ Create database structure (db.json)</li>
+                  <li>🚀 Start JSON Server on port 3001</li>
+                  <li>🧪 Test API endpoints with browser</li>
+                  <li>📤 Commit database setup</li>
+                </ul>
+                <p>
+                  <strong>Output:</strong> Screenshot of running JSON Server
+                </p>
+              </div>
+
+              <div class="day-card">
+                <div class="day-number">2</div>
+                <div class="day-goal">Angular HTTP Service Implementation</div>
+                <p>
+                  <strong>Goal:</strong> Create service for API communication
+                </p>
+                <ul class="task-list">
+                  <li>🔧 Import HTTP Client Module</li>
+                  <li>🏗️ Generate AuthService with Angular CLI</li>
+                  <li>👤 Create User interface/model</li>
+                  <li>📡 Implement HTTP methods in service</li>
+                  <li>📤 Commit service implementation</li>
+                </ul>
+                <p><strong>Output:</strong> Console logs showing HTTP calls</p>
+              </div>
+
+              <div class="day-card">
+                <div class="day-number">3</div>
+                <div class="day-goal">Dynamic Signup Implementation</div>
+                <p>
+                  <strong>Goal:</strong> Connect signup form to JSON database
+                </p>
+                <ul class="task-list">
+                  <li>🔄 Update Signup Component logic</li>
+                  <li>🎨 Add loading states to template</li>
+                  <li>✅ Add success/error messages</li>
+                  <li>🧪 Test user creation flow</li>
+                  <li>📤 Commit dynamic signup</li>
+                </ul>
+                <p><strong>Output:</strong> New user appears in db.json</p>
+              </div>
+
+              <div class="day-card">
+                <div class="day-number">4</div>
+                <div class="day-goal">Dynamic Login Implementation</div>
+                <p>
+                  <strong>Goal:</strong> Connect login form to user verification
+                </p>
+                <ul class="task-list">
+                  <li>🔄 Update Login Component logic</li>
+                  <li>🔐 Implement user verification</li>
+                  <li>🎭 Add loading & error states</li>
+                  <li>🏠 Add navigation after success</li>
+                  <li>📤 Commit dynamic login</li>
+                </ul>
+                <p><strong>Output:</strong> Complete signup → login flow</p>
+              </div>
+
+              <div class="day-card">
+                <div class="day-number">5</div>
+                <div class="day-goal">Polish & Documentation</div>
+                <p>
+                  <strong>Goal:</strong> Complete application with documentation
+                </p>
+                <ul class="task-list">
+                  <li>✨ Add UI polish & animations</li>
+                  <li>🔒 Basic security enhancements</li>
+                  <li>📚 Create comprehensive docs</li>
+                  <li>🧪 Test complete user journey</li>
+                  <li>📤 Final commit & showcase</li>
+                </ul>
+                <p><strong>Output:</strong> Complete project demo video</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Implementation Tab -->
+        <div class="tab-content" id="implementation">
+          <div class="section-card">
+            <h2 class="section-title">💻 Step-by-Step Implementation Guide</h2>
+
+            <h3>📦 Day 1: JSON Server Setup</h3>
+            <div class="command-reference">
+              <h4>1. Install JSON Server</h4>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  ># Install globally npm install -g json-server # Install as
+                  dev dependency npm install json-server --save-dev</code
+                >
+              </div>
+
+              <h4>2. Create Database Structure</h4>
+              <p>Create file: <code>mocks/db.json</code></p>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  >{ "users": [ { "id": 1, "fullname": "Ahmed Ben Ali", "email":
+                  "ahmed@cofat.com", "password": "123456" } ] }</code
+                >
+              </div>
+
+              <h4>3. Start JSON Server</h4>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  ># Start server (keep this running) json-server --watch
+                  mocks/db.json --port 3001</code
+                >
+              </div>
+
+              <h4>4. Test Endpoints</h4>
+              <p>
+                Visit in browser:
+                <span class="api-endpoint">http://localhost:3001/users</span>
+              </p>
+            </div>
+
+            <h3>🔗 Day 2: Angular HTTP Service</h3>
+            <div class="command-reference">
+              <h4>1. Update app.module.ts</h4>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  >import { HttpClientModule } from '@angular/common/http';
+                  @NgModule({ imports: [ // ... existing imports
+                  HttpClientModule ], })</code
+                >
+              </div>
+
+              <h4>2. Generate Service & Interface</h4>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  ># Generate service ng generate service services/auth # Create
+                  user interface manually # File: models/user.interface.ts</code
+                >
+              </div>
+
+              <h4>3. User Interface</h4>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  >export interface User { id?: number; fullname: string; email:
+                  string; password: string; }</code
+                >
+              </div>
+
+              <h4>4. Auth Service Implementation</h4>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  >import { Injectable } from '@angular/core'; import {
+                  HttpClient } from '@angular/common/http'; import { Observable
+                  } from 'rxjs'; import { User } from
+                  '../models/user.interface'; @Injectable({ providedIn: 'root'
+                  }) export class AuthService { private apiUrl =
+                  'http://localhost:3001/users'; constructor(private http:
+                  HttpClient) {} // GET: Fetch all users getUsers():
+                  Observable&lt;User[]&gt; { return
+                  this.http.get&lt;User[]&gt;(this.apiUrl); } // POST: Create
+                  new user createUser(user: User): Observable&lt;User&gt; {
+                  return this.http.post&lt;User&gt;(this.apiUrl, user); } //
+                  Verify user credentials verifyUser(email: string, password:
+                  string): Observable&lt;User[]&gt; { return
+                  this.http.get&lt;User[]&gt;(
+                  `${this.apiUrl}?email=${email}&password=${password}` ); }
+                  }</code
+                >
+              </div>
+            </div>
+
+            <h3>📝 Day 3: Dynamic Signup</h3>
+            <div class="command-reference">
+              <h4>Key Signup Component Updates</h4>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  >// In signup.component.ts onSignup(): void { if
+                  (this.signupForm.valid) { this.isLoading = true; const
+                  newUser: User = this.signupForm.value;
+                  this.authService.createUser(newUser).subscribe({ next:
+                  (response) => { this.isLoading = false; this.successMessage =
+                  'Account created successfully!'; // Redirect after 2 seconds
+                  setTimeout(() => { this.router.navigate(['/auth/login']); },
+                  2000); }, error: (error) => { this.isLoading = false;
+                  this.errorMessage = 'Failed to create account.'; } }); }
+                  }</code
+                >
+              </div>
+            </div>
+
+            <h3>🔐 Day 4: Dynamic Login</h3>
+            <div class="command-reference">
+              <h4>Key Login Component Updates</h4>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  >// In login.component.ts onLogin(): void { if
+                  (this.loginForm.valid) { this.isLoading = true; const { email,
+                  password } = this.loginForm.value;
+                  this.authService.verifyUser(email, password).subscribe({ next:
+                  (users) => { this.isLoading = false; if (users && users.length
+                  > 0) { const user = users[0]; // Store user session
+                  localStorage.setItem('currentUser', JSON.stringify(user)); //
+                  Redirect to home this.router.navigate(['/']); } else {
+                  this.errorMessage = 'Invalid email or password'; } }, error:
+                  (error) => { this.isLoading = false; this.errorMessage =
+                  'Login failed. Please try again.'; } }); } }</code
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testing & API Tab -->
+        <div class="tab-content" id="testing">
+          <div class="section-card">
+            <h2 class="section-title">🧪 API Testing & Debugging Guide</h2>
+
+            <h3>🔧 Postman Testing Workflow</h3>
+            <div class="grid">
+              <div class="concept-card">
+                <h3>📤 POST Request (Create User)</h3>
+                <p>
+                  <strong>URL:</strong>
+                  <span class="api-endpoint">http://localhost:3001/users</span>
+                </p>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Headers:</strong> Content-Type: application/json</p>
+                <div class="code-block">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    Copy
+                  </button>
+                  <code
+                    >{ "fullname": "Test User", "email": "test@example.com",
+                    "password": "password123" }</code
+                  >
+                </div>
+              </div>
+
+              <div class="concept-card">
+                <h3>📥 GET Request (Read Users)</h3>
+                <p>
+                  <strong>URL:</strong>
+                  <span class="api-endpoint">http://localhost:3001/users</span>
+                </p>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Expected:</strong> Array of all users</p>
+                <div class="code-block">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    Copy
+                  </button>
+                  <code
+                    ># Query specific user
+                    http://localhost:3001/users?email=test@example.com&password=password123</code
+                  >
+                </div>
+              </div>
+            </div>
+
+            <h3>🐛 Common Issues & Solutions</h3>
+            <div class="command-reference">
+              <h4>❌ CORS Error</h4>
+              <p>
+                <strong>Problem:</strong> Browser blocks cross-origin requests
+              </p>
+              <p>
+                <strong>Solution:</strong> JSON Server automatically handles
+                CORS
+              </p>
+
+              <h4>❌ JSON Server Not Starting</h4>
+              <p>
+                <strong>Problem:</strong> Port already in use or file not found
+              </p>
+              <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <code
+                  ># Check if port 3001 is in use netstat -an | findstr :3001 #
+                  Kill process if needed taskkill /F /PID [process_id] # Start
+                  with different port json-server --watch mocks/db.json --port
+                  3002</code
+                >
+              </div>
+
+              <h4>❌ Network Error in Angular</h4>
+              <p>
+                <strong>Problem:</strong> HttpClient can't reach JSON Server
+              </p>
+              <p>
+                <strong>Solution:</strong> Verify server is running and URL is
+                correct
+              </p>
+
+              <h4>🔍 Debug Steps</h4>
+              <ol>
+                <li>Check browser Network tab for HTTP requests</li>
+                <li>Verify JSON Server logs show incoming requests</li>
+                <li>Test endpoints in Postman first</li>
+                <li>Check Angular console for error messages</li>
+                <li>Verify db.json file structure is correct</li>
+              </ol>
+            </div>
+
+            <h3>✅ Testing Checklist</h3>
+            <div class="interactive-checklist" id="testingChecklist">
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🚀 JSON Server Running</h4>
+                <p>Server responds at localhost:3001</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📤 POST Request Works</h4>
+                <p>Can create users via Postman</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📥 GET Request Works</h4>
+                <p>Can retrieve users via Postman</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🔄 Angular HTTP Service</h4>
+                <p>Service methods work in console</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📝 Signup Creates User</h4>
+                <p>New users appear in db.json</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🔐 Login Verifies User</h4>
+                <p>Valid credentials allow login</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>❌ Error Handling</h4>
+                <p>Invalid login shows error message</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>⏳ Loading States</h4>
+                <p>Buttons show loading during requests</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success Criteria Tab -->
+        <div class="tab-content" id="success">
+          <div class="section-card">
+            <h2 class="section-title">
+              📊 Week 4 Success Criteria & Deliverables
+            </h2>
+
+            <h3>🎯 Technical Requirements</h3>
+            <table class="success-criteria-table">
+              <thead>
+                <tr>
+                  <th>✅ Requirement</th>
+                  <th>📝 Description</th>
+                  <th>🧪 Test Method</th>
+                  <th>📸 Evidence</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>JSON Server Setup</strong></td>
+                  <td>Mock backend running on port 3001</td>
+                  <td>Visit http://localhost:3001/users</td>
+                  <td>Screenshot of API response</td>
+                </tr>
+                <tr>
+                  <td><strong>User Creation</strong></td>
+                  <td>Signup form saves to JSON file</td>
+                  <td>Check db.json after signup</td>
+                  <td>Before/after db.json comparison</td>
+                </tr>
+                <tr>
+                  <td><strong>User Authentication</strong></td>
+                  <td>Login verifies against JSON data</td>
+                  <td>Login with created user</td>
+                  <td>Successful login navigation</td>
+                </tr>
+                <tr>
+                  <td><strong>HTTP Communication</strong></td>
+                  <td>Angular HTTP Client working</td>
+                  <td>Console shows API calls</td>
+                  <td>Browser Network tab screenshots</td>
+                </tr>
+                <tr>
+                  <td><strong>Error Handling</strong></td>
+                  <td>Proper error messages displayed</td>
+                  <td>Try invalid login credentials</td>
+                  <td>Error message screenshot</td>
+                </tr>
+                <tr>
+                  <td><strong>Loading States</strong></td>
+                  <td>UI shows loading during API calls</td>
+                  <td>Observe button states during requests</td>
+                  <td>Loading state video/screenshot</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3>📚 Learning Milestones</h3>
+            <div class="grid">
+              <div class="concept-card">
+                <h3>🔗 HTTP Client Module</h3>
+                <p>
+                  Successfully implemented API communication from Angular to
+                  backend services
+                </p>
+              </div>
+              <div class="concept-card">
+                <h3>📡 JSON Server Mastery</h3>
+                <p>
+                  Created and configured mock backend for development and
+                  testing
+                </p>
+              </div>
+              <div class="concept-card">
+                <h3>🏗️ Service Architecture</h3>
+                <p>
+                  Built reusable Angular service with proper dependency
+                  injection
+                </p>
+              </div>
+              <div class="concept-card">
+                <h3>🔄 CRUD Operations</h3>
+                <p>
+                  Implemented Create (POST) and Read (GET) operations
+                  successfully
+                </p>
+              </div>
+              <div class="concept-card">
+                <h3>🔄 Async Programming</h3>
+                <p>
+                  Handled Observables, subscriptions, and async error management
+                </p>
+              </div>
+              <div class="concept-card">
+                <h3>🚀 Full-Stack Flow</h3>
+                <p>Connected frontend forms to backend storage successfully</p>
+              </div>
+            </div>
+
+            <h3>🎓 Final Deliverables</h3>
+            <div class="command-reference">
+              <h4>📋 Required Submissions</h4>
+              <ol>
+                <li>
+                  <strong>🔗 Complete GitHub Repository</strong>
+                  <ul>
+                    <li>Working JSON Server configuration</li>
+                    <li>Updated README with setup instructions</li>
+                    <li>All source code with clear commit history</li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>📱 Functional Application</strong>
+                  <ul>
+                    <li>Dynamic signup creating users in JSON file</li>
+                    <li>Dynamic login verifying users from JSON file</li>
+                    <li>Proper error handling and user feedback</li>
+                    <li>COFAT branding throughout application</li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>📹 Demo Video (2-3 minutes)</strong>
+                  <ul>
+                    <li>Complete signup flow demonstration</li>
+                    <li>Successful login with created user</li>
+                    <li>JSON file changes during user creation</li>
+                    <li>Error handling demonstration</li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>📚 Technical Documentation</strong>
+                  <ul>
+                    <li>API endpoints used and their purposes</li>
+                    <li>Component interaction diagram</li>
+                    <li>Setup instructions for future developers</li>
+                    <li>Lessons learned and challenges overcome</li>
+                  </ul>
+                </li>
+              </ol>
+            </div>
+
+            <div class="help-box">
+              <div class="help-title">🏆 Bonus Advanced Features</div>
+              <ul>
+                <li>
+                  <strong>🔒 Password Hashing:</strong> Basic client-side
+                  password hashing
+                </li>
+                <li>
+                  <strong>🛡️ JWT Simulation:</strong> Token-based session
+                  management
+                </li>
+                <li>
+                  <strong>📊 User Dashboard:</strong> Display logged-in user
+                  information
+                </li>
+                <li>
+                  <strong>🔄 Auto-logout:</strong> Session timeout functionality
+                </li>
+                <li>
+                  <strong>✅ Email Validation:</strong> Check for existing email
+                  during signup
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Checklist Tab -->
+        <div class="tab-content" id="checklist">
+          <div class="section-card">
+            <h2 class="section-title">✅ Week 4 Progress Tracker</h2>
+            <p>Track your daily progress and celebrate each milestone!</p>
+
+            <div class="interactive-checklist" id="mainChecklist">
+              <!-- Day 1 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📦 Day 1: Install JSON Server</h4>
+                <p>npm install -g json-server</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🗃️ Day 1: Create db.json</h4>
+                <p>Database structure with sample user</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🚀 Day 1: Start JSON Server</h4>
+                <p>Server running on localhost:3001</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🧪 Day 1: Test API Endpoints</h4>
+                <p>Browser shows JSON response</p>
+              </div>
+
+              <!-- Day 2 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🔧 Day 2: Import HTTP Client</h4>
+                <p>HttpClientModule in app.module.ts</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🏗️ Day 2: Generate Auth Service</h4>
+                <p>ng generate service services/auth</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>👤 Day 2: Create User Interface</h4>
+                <p>models/user.interface.ts created</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📡 Day 2: Implement HTTP Methods</h4>
+                <p>getUsers, createUser, verifyUser methods</p>
+              </div>
+
+              <!-- Day 3 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🔄 Day 3: Update Signup Component</h4>
+                <p>HTTP POST implementation</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>⏳ Day 3: Add Loading States</h4>
+                <p>isLoading property and UI feedback</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>✅ Day 3: Success Messages</h4>
+                <p>User feedback for successful signup</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🧪 Day 3: Test User Creation</h4>
+                <p>New user appears in db.json</p>
+              </div>
+
+              <!-- Day 4 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🔄 Day 4: Update Login Component</h4>
+                <p>HTTP GET for user verification</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🔐 Day 4: Implement User Verification</h4>
+                <p>Email/password checking logic</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🏠 Day 4: Navigation After Login</h4>
+                <p>Redirect to home page on success</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>❌ Day 4: Error Handling</h4>
+                <p>Invalid credentials show error</p>
+              </div>
+
+              <!-- Day 5 Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>✨ Day 5: UI Polish</h4>
+                <p>Animations and visual enhancements</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📚 Day 5: Create Documentation</h4>
+                <p>Updated README with setup instructions</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🧪 Day 5: Complete Testing</h4>
+                <p>Full signup → login flow working</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📹 Day 5: Record Demo Video</h4>
+                <p>2-3 minute demonstration video</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>📤 Day 5: Final Commit</h4>
+                <p>All code committed with clear messages</p>
+              </div>
+
+              <!-- Bonus Tasks -->
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🏆 Bonus: Password Hashing</h4>
+                <p>Basic client-side password security</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🏆 Bonus: Session Management</h4>
+                <p>localStorage for user sessions</p>
+              </div>
+              <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                <h4>🏆 Bonus: User Dashboard</h4>
+                <p>Display logged-in user info</p>
+              </div>
+            </div>
+
+            <div class="help-box">
+              <div class="help-title">🎯 Success Tips</div>
+              <ul>
+                <li>
+                  <strong>Test Often:</strong> Use Postman to verify API
+                  endpoints before Angular integration
+                </li>
+                <li>
+                  <strong>Console First:</strong> Always check browser console
+                  for error messages
+                </li>
+                <li>
+                  <strong>Small Steps:</strong> Implement one feature at a time
+                  and test immediately
+                </li>
+                <li>
+                  <strong>Save Progress:</strong> Commit code frequently with
+                  descriptive messages
+                </li>
+                <li>
+                  <strong>Ask Questions:</strong> Don't hesitate to ask for help
+                  when stuck
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Tab Navigation
+      document.querySelectorAll(".nav-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document
+            .querySelectorAll(".nav-tab")
+            .forEach((t) => t.classList.remove("active"));
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((c) => c.classList.remove("active"));
+
+          tab.classList.add("active");
+          const tabId = tab.getAttribute("data-tab");
+          document.getElementById(tabId).classList.add("active");
+        });
+      });
+
+      // Copy code functionality
+      function copyCode(button) {
+        const codeBlock = button.nextElementSibling;
+        const text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.textContent = "Copy";
+          }, 2000);
+        });
+      }
+
+      // Toggle interactive checklist items
+      function toggleChecklistItem(item) {
+        item.classList.toggle("completed");
+        updateProgress();
+      }
+
+      // Update progress
+      function updateProgress() {
+        const allItems = document.querySelectorAll(
+          "#mainChecklist .checklist-item, #testingChecklist .checklist-item"
+        );
+        const completedItems = document.querySelectorAll(
+          "#mainChecklist .checklist-item.completed, #testingChecklist .checklist-item.completed"
+        );
+
+        const percentage = Math.round(
+          (completedItems.length / allItems.length) * 100
+        );
+
+        document.getElementById("completionPercentage").textContent =
+          percentage + "%";
+        document.getElementById("progressFill").style.width = percentage + "%";
+
+        // Save progress to localStorage
+        const progress = Array.from(allItems).map((item) =>
+          item.classList.contains("completed")
+        );
+        localStorage.setItem("cofat-week4-progress", JSON.stringify(progress));
+      }
+
+      // Load saved progress
+      function loadProgress() {
+        const saved = localStorage.getItem("cofat-week4-progress");
+        if (saved) {
+          const progress = JSON.parse(saved);
+          const allItems = document.querySelectorAll(
+            "#mainChecklist .checklist-item, #testingChecklist .checklist-item"
+          );
+
+          progress.forEach((completed, index) => {
+            if (completed && allItems[index]) {
+              allItems[index].classList.add("completed");
+            }
+          });
+
+          updateProgress();
+        }
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        loadProgress();
+      });
+    </script>
+  </body>
+</html>
