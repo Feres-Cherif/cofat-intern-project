@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "fullname": "Ahmed Ben Ali",
+      "email": "ahmed@cofat.com",
+      "password": "123456"
+    },
+    {
+      "fullname": "feres",
+      "email": "feres@gmail.com",
+      "password": "admin",
+      "id": "1e92"
+    },
+    {
+      "id": "d315",
+      "fullname": "amin",
+      "email": "feres@gmail.com",
+      "password": "admin"
+    }
+  ]
+}
