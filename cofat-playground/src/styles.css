@@ -6,3 +6,10 @@
     font-family: 'Poppins', sans-serif;
     
 }
+.login-box .alert {
+  padding: 4px 8px;     
+  margin: 4px 0;         
+  font-size: 13px;      
+  display: inline-block; 
+}
+
